@@ -1,14 +1,26 @@
 from pytube import YouTube
 
-def download(url, destination="."):
+def listResolutions(yt):
+    streams = yt.streams.filter(progressive=True).order_by('resolution')
+    stream_list = list(streams)
+    
+    print("\nAvailable video streams:")
+    for i, stream in enumerate(stream_list):
+        print(f"{i + 1}. Resolution: {stream.resolution}, Format: {stream.mime_type.split('/')[1]}")
+    
+    return stream_list
+
+def download(url, destination):
     try:
         yt = YouTube(url)
-        
-        ys = yt.streams.get_highest_resolution()
 
-        print(f"Downloading: {yt.title}")
+        streams = listResolutions(yt)
+        choice = int(input("\nEnter the number of the stream you want to download: "))
+        choice = streams[choice - 1]
+        print(f"\nDownloading: {yt.title} in {choice.resolution} resolution")
         
-        ys.download(destination)
+        choice.download(destination)
+        
         print("Download completed!")
     
     except Exception as e:
